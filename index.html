@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vogel-Kartierung</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin=""></script>
     
-    <style>
-        /* Die Karte füllt den ganzen Bildschirm */
+    <style type="text/css">
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; }
-        #map { height: 100vh; width: 100vw; }
-
-        /* --- LEGENDE STYLE --- */
+        #map { width: 100%; height: 100%; }
+        
+        /* --- LEGENDE BASIS-STYLING --- */
         .custom-legend {
             position: fixed;
             background: white;
@@ -21,6 +20,7 @@
             border-radius: 8px;
             font-family: Arial, sans-serif;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.5;
             overflow-y: auto;
             transition: all 0.3s ease;
         }
@@ -31,9 +31,12 @@
                 bottom: 30px;
                 right: 20px;
                 width: 260px;
-                max-height: 80vh;
+                max-height: 85vh;
                 padding: 15px;
                 font-size: 13px;
+                display: block !important; /* Immer zeigen am PC */
+                opacity: 1 !important;
+                transform: scale(1) !important;
             }
             #legend-toggle { display: none; } /* Kein Button am PC */
         }
@@ -46,14 +49,16 @@
                 left: 15px;
                 max-height: 60vh;
                 padding: 12px;
-                font-size: 11px;
+                font-size: 12px;
                 transform: scale(0); /* Startet unsichtbar */
                 transform-origin: bottom right;
                 opacity: 0;
+                pointer-events: none;
             }
             .custom-legend.active {
                 transform: scale(1); /* Erscheint beim Klick */
                 opacity: 1;
+                pointer-events: auto;
             }
             #legend-toggle {
                 position: fixed;
@@ -75,9 +80,15 @@
             }
         }
 
-        /* Styling der Legenden-Inhalte */
-        .legend-item { display: flex; align-items: center; margin-bottom: 6px; }
-        .legend-symbol { width: 18px; height: 18px; margin-right: 10px; flex-shrink: 0; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .legend-symbol {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
         .color-box { border: 1px solid #000; }
         .status-icon { object-fit: contain; }
     </style>
@@ -89,8 +100,87 @@
     <button id="legend-toggle" onclick="toggleMobileLegend()">i</button>
 
     <div id="legend" class="custom-legend">
-        <div style="margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
-            <b>Vogelarten</b>
-        </div>
+        <b style="display: block; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Vogelarten (Farbe)</b>
         
-        <div class="legend-item
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#53a4d9;"></span>Kiebitz</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#49f90e;"></span>Uferschnepfe</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ff7f00;"></span>Brachvogel</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ff3b55;"></span>Rotschenkel</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fff201;"></span>Bekassine</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fca9e2;"></span>Löffelente</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#c3ebff;"></span>Knäkente</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#a3483b;"></span>Austernfischer</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#8570e4;"></span>Sumpfohreule</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fdbf6f;"></span>Wachtelkönig</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#6cf4c9;"></span>Tüpfelsumpfhuhn</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ffffff;"></span>Höckerschwan</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#7b797b;"></span>Andere Arten</div>
+
+        <b style="display: block; margin: 15px 0 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Status (Form)</b>
+        
+        <div class="legend-item"><img src="icons/s0.png" class="legend-symbol status-icon">Revierverhalten</div>
+        <div class="legend-item"><img src="icons/s1.png" class="legend-symbol status-icon">Bereich mit Nestverdacht</div>
+        <div class="legend-item"><img src="icons/s2.png" class="legend-symbol status-icon">Vogel brütet (Schutzbedarf!)</div>
+        <div class="legend-item"><img src="icons/s3.png" class="legend-symbol status-icon">Vogel brütet (Schutzgitter)</div>
+        <div class="legend-item"><img src="icons/s4.png" class="legend-symbol status-icon">Vogel brütet (eingezäunt)</div>
+        <div class="legend-item"><img src="icons/s5.png" class="legend-symbol status-icon">Vogel brütet (nicht markiert)</div>
+        <div class="legend-item"><img src="icons/s6.png" class="legend-symbol status-icon">Vogel brütet (markiert)</div>
+        <div class="legend-item"><img src="icons/s7.png" class="legend-symbol status-icon">Vogel brütet (Grasinsel)</div>
+        <div class="legend-item"><img src="icons/s8.png" class="legend-symbol status-icon">Schlüpferfolg (Küken)</div>
+        <div class="legend-item"><img src="icons/s9.png" class="legend-symbol status-icon">Schlüpferfolg (Indizien)</div>
+        <div class="legend-item"><img src="icons/s10.png" class="legend-symbol status-icon">Gelegeprädation</div>
+        <div class="legend-item"><img src="icons/s11.png" class="legend-symbol status-icon">Nest verlassen</div>
+        <div class="legend-item"><img src="icons/s12.png" class="legend-symbol status-icon">Zerstörung Landwirtschaft</div>
+        <div class="legend-item"><img src="icons/s13.png" class="legend-symbol status-icon">Standort unbekannt</div>
+    </div>
+
+    <script>
+        // 1. Karten-Layer definieren
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        });
+
+        var google_sat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '&copy; Google Maps'
+        });
+
+        var vogel_daten = L.tileLayer('{z}/{x}/{y}.png', {
+            minZoom: 12, 
+            maxZoom: 18, 
+            tms: false, 
+            opacity: 1.0,
+            zIndex: 100 
+        });
+
+        // 2. Karte initialisieren
+        var map = L.map('map', {
+            center: [53.1676, 8.82988],
+            zoom: 15,
+            layers: [osm, vogel_daten] 
+        });
+
+        // 3. Basemap-Schalter unten links
+        var baseMaps = {
+            "Karte (OSM)": osm,
+            "Luftbild (Google)": google_sat
+        };
+
+        L.control.layers(baseMaps, null, {
+            collapsed: false,
+            position: 'bottomleft' 
+        }).addTo(map);
+
+        // 4. Funktion für die Handy-Legende
+        function toggleMobileLegend() {
+            if (window.innerWidth <= 600) {
+                var leg = document.getElementById('legend');
+                leg.classList.toggle('active');
+                var btn = document.getElementById('legend-toggle');
+                btn.innerHTML = leg.classList.contains('active') ? "✖" : "i";
+            }
+        }
+    </script>
+</body>
+</html>
