@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet preview</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin=""></script>
+    <style type="text/css">
+        body { margin: 0; padding: 0; } 
+        html, body, #map { width: 100%; height: 100%; }
+        
+        /* Styling für die Legende */
+        .custom-legend {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.5;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .legend-item { display: flex; align-items: center; margin-bottom: 4px; }
+        .color-box { width: 15px; height: 15px; border: 1px solid #000; margin-right: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="custom-legend">
+        <b style="display: block; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Vogelarten (Farbe)</b>
+        
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#53a4d9;"></span>Kiebitz</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#49f90e;"></span>Uferschnepfe</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ff7f00;"></span>Brachvogel</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ff3b55;"></span>Rotschenkel</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fff201;"></span>Bekassine</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fca9e2;"></span>Löffelente</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#c3ebff;"></span>Knäkente</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#a3483b;"></span>Austernfischer</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#8570e4;"></span>Sumpfohreule</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#fdbf6f;"></span>Wachtelkönig</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#6cf4c9;"></span>Tüpfelsumpfhuhn</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#ffffff;"></span>Höckerschwan</div>
+        <div class="legend-item"><span class="legend-symbol color-box" style="background:#7b797b;"></span>Andere Arten</div>
+
+        <b style="display: block; margin: 15px 0 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Status (Form)</b>
+        
+        <div class="legend-item"><img src="icons/s0.png" class="legend-symbol status-icon">Revierverhalten</div>
+        <div class="legend-item"><img src="icons/s1.png" class="legend-symbol status-icon">Bereich mit Nestverdacht</div>
+        <div class="legend-item"><img src="icons/s2.png" class="legend-symbol status-icon">Vogel brütet (Schutzbedarf!)</div>
+        <div class="legend-item"><img src="icons/s3.png" class="legend-symbol status-icon">Vogel brütet (Schutzgitter)</div>
+        <div class="legend-item"><img src="icons/s4.png" class="legend-symbol status-icon">Vogel brütet (eingezäunt)</div>
+        <div class="legend-item"><img src="icons/s5.png" class="legend-symbol status-icon">Vogel brütet (nicht markiert)</div>
+        <div class="legend-item"><img src="icons/s6.png" class="legend-symbol status-icon">Vogel brütet (markiert)</div>
+        <div class="legend-item"><img src="icons/s7.png" class="legend-symbol status-icon">Vogel brütet (Grasinsel)</div>
+        <div class="legend-item"><img src="icons/s8.png" class="legend-symbol status-icon">Schlüpferfolg (Küken)</div>
+        <div class="legend-item"><img src="icons/s9.png" class="legend-symbol status-icon">Schlüpferfolg (Indizien)</div>
+        <div class="legend-item"><img src="icons/s10.png" class="legend-symbol status-icon">Gelegeprädation</div>
+        <div class="legend-item"><img src="icons/s11.png" class="legend-symbol status-icon">Nest verlassen</div>
+        <div class="legend-item"><img src="icons/s12.png" class="legend-symbol status-icon">Zerstörung Landwirtschaft</div>
+        <div class="legend-item"><img src="icons/s13.png" class="legend-symbol status-icon">Standort unbekannt</div>
+    </div>
+
+    <style>
+        .custom-legend {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.6;
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 260px; /* Feste Breite für Stabilität */
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        /* Gemeinsame Basis für Icons und Farbboxen damit alles fluchtet */
+        .legend-symbol {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            flex-shrink: 0; /* Verhindert Stauchen */
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .color-box {
+            border: 1px solid #000;
+        }
+        .status-icon {
+            object-fit: contain;
+        }
+    </style>
+
+   <script>
+    // 1. Hintergrundkarten (Basemaps) definieren
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    });
+
+    var google_sat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
+    });
+
+    // 2. Deine Vogel-Daten (Fest eingebaut, kein Schalter)
+    var vogel_daten = L.tileLayer('{z}/{x}/{y}.png', {
+        minZoom: 12, 
+        maxZoom: 18, 
+        tms: false, 
+        opacity: 1.0,
+        zIndex: 100 // Hoher Wert, damit es immer oben liegt
+    });
+
+    // 3. Die Karte erstellen
+    // Wir laden OSM und Vogel-Daten direkt beim Start
+    var map = L.map('map', {
+        center: [53.1676, 8.82988],
+        zoom: 15,
+        layers: [osm, vogel_daten] 
+    });
+
+    // 4. Definition der Basemaps für den Schalter
+    var baseMaps = {
+        "Karte (OSM)": osm,
+        "Luftbild (Google)": google_sat
+    };
+
+    // 5. Den Schalter hinzufügen (Unten Links)
+    L.control.layers(baseMaps, null, {
+        collapsed: false,
+        position: 'bottomleft' 
+    }).addTo(map);
+</script>
+</body>
